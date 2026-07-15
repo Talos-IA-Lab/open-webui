@@ -10,7 +10,9 @@
 	import { WEBUI_BUILD_HASH, WEBUI_VERSION } from '$lib/constants';
 	import { banners as _banners, config, showChangelog } from '$lib/stores';
 	import type { Banner } from '$lib/types';
+	import { THEME_STYLES } from '$lib/themes';
 	import { compareVersion } from '$lib/utils';
+	import { applyThemeStyle, getEffectiveThemeStyle } from '$lib/utils/theme';
 	import { onMount, getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import Textarea from '$lib/components/common/Textarea.svelte';
@@ -56,6 +58,13 @@
 		await updateBanners();
 
 		await config.set(await getBackendConfig());
+
+		// Apply the new instance theme style and reload the custom CSS in place
+		localStorage.setItem('instanceThemeStyle', $config?.default_theme ?? '');
+		applyThemeStyle(getEffectiveThemeStyle());
+		document
+			.querySelector('link[href^="/static/custom.css"]')
+			?.setAttribute('href', `/static/custom.css?v=${Date.now()}`);
 
 		if (res) {
 			saveHandler();
@@ -393,6 +402,38 @@
 					<div class=" mt-0.5 mb-2.5 text-base font-medium">{$i18n.t('UI')}</div>
 
 					<hr class=" border-gray-100/30 dark:border-gray-850/30 my-2" />
+
+					<div class="  mb-2.5 flex w-full justify-between">
+						<div class=" self-center text-xs font-medium">{$i18n.t('Default Theme')}</div>
+						<div class="flex items-center relative">
+							<select
+								class="w-fit pr-8 rounded-sm px-2 text-xs bg-transparent outline-hidden text-right"
+								bind:value={adminConfig.DEFAULT_THEME}
+								placeholder={$i18n.t('Select a theme')}
+							>
+								<option value="">{$i18n.t('Default')}</option>
+								{#each THEME_STYLES.filter((themeStyle) => themeStyle.id !== 'default') as themeStyleOption}
+									<option value={themeStyleOption.id}>{$i18n.t(themeStyleOption.name)}</option>
+								{/each}
+							</select>
+						</div>
+					</div>
+
+					<div class="mb-2.5">
+						<div class=" self-center text-xs font-medium mb-2">
+							{$i18n.t('Custom CSS')}
+						</div>
+						<Textarea
+							placeholder={`e.g.) html.dark { --color-gray-900: #101418; }`}
+							rows={6}
+							bind:value={adminConfig.UI_CUSTOM_CSS}
+						/>
+						<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+							{$i18n.t(
+								'Applied for all users, including the login page. Use with caution, as invalid CSS can break the interface.'
+							)}
+						</div>
+					</div>
 
 					<div class="mb-2.5">
 						<div class="flex w-full justify-between">

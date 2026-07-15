@@ -119,7 +119,8 @@ textarea::placeholder {
 }
 
 .font-primary {
-	font-family: 'Archivo', 'Vazirmatn', sans-serif;
+	/* --theme-font-family is an optional hook for UI themes (see src/lib/themes) */
+	font-family: var(--theme-font-family, 'Archivo', 'Vazirmatn', sans-serif);
 }
 
 .drag-region {

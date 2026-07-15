@@ -15,6 +15,7 @@
 	import { getTerminalServers } from '$lib/apis/terminal';
 	import { getUserSettings } from '$lib/apis/users';
 	import { setTextScale } from '$lib/utils/text-scale';
+	import { applyUserCustomCss } from '$lib/utils/theme';
 
 	import { WEBUI_VERSION, WEBUI_API_BASE_URL } from '$lib/constants';
 	import { compareVersion } from '$lib/utils';
@@ -107,6 +108,7 @@
 		}
 
 		setTextScale($settings?.textScale ?? 1);
+		applyUserCustomCss($settings?.customCss ?? '');
 
 		if (cb) {
 			await cb();
